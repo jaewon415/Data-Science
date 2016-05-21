@@ -2,12 +2,14 @@
 
 ## Introduction
 The run_analysis.R script does the following
+
 *Stores the downloaded data file in the temporary directory
 *Merges the train and test data
 *Reformats the column name for readability and Understandability
 *Generates the tidy data from the original dataset, and creates csv file for the tidy data
 
-## About the Tidy Dataset 
+## About the Tidy Dataset
+
 *Original Data contains 10299 observations and 561 variables
 *But the tidy data contains 180 observation and 68 variables when melted
 *and it contains 679734 observations and 4 variables when dcast
