@@ -1,4 +1,6 @@
-## Synopsis
+#This is the README.md for this repository
+
+## Brief Information
 
 This repository contains R code for getting and cleaning a data to generate a tidy data. The code in **run_analysis.R** file provides great example for creating a tidy data from test/train/validate dataset. 
 
@@ -18,6 +20,6 @@ One should note/check if they have downloaded **data.table** and **dplyr** packa
 
 I did not collect the data for this assignment. All the contribution goes to the website: "http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones" (Also contains all information about the dataset and it's purpose)
 
-# Information about Variable
+## Information about Variable
 
 Please take time to read over the codebook.md in this repository

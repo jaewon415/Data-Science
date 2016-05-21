@@ -1,0 +1,64 @@
+# This is the Code Book for UCI-DATA-SET
+
+## Introduction
+The run_analysis.R script does the following
+*Stores the downloaded data file in the temporary directory
+*Merges the train and test data
+*Reformats the column name for readability and Understandability
+*Generates the tidy data from the original dataset, and creates csv file for the tidy data
+
+## About the Tidy Dataset 
+*Original Data contains 10299 observations and 561 variables
+*But the tidy data contains 180 observation and 68 variables when melted
+*and it contains 679734 observations and 4 variables when dcast
+*Variable "Activity": chr, have "LAYING" "SITTING" "STANDING" "WALKING" "WALKING DOWNSTAIRS" "WALKING_UPSTAIRS" as character values.
+*Variable "subject" : integer, have values from 1 to 30
+*Other columns are in numeric form
+
+## About Variable Included in the tidy Data set
+
+Note that the measurements below are calculated for X, Y, and Z  each (3 dimension)
+
+*"Time.Body.Acceleration.mean"
+*"Time.Body.Acceleration.std" 
+*"Time.Gravity.Acceleration.mean"               
+*"Time.Gravity.Acceleration.std"               
+*"Time.Body.Acceleration.Jerk.mean"            
+*"Time.Body.Acceleration.Jerk.std"  
+*"Time.BodyGyro.mean"                          
+*"Time.BodyGyro.std"                           
+*"Time.BodyGyroJerk.mean"                      
+*"Time.BodyGyroJerk.std"                       
+*"Frequency.Body.Acceleration.mean"            
+*"Frequency.Body.Acceleration.std"             
+*"Frequency.Body.Acceleration.Jerk.mean"       
+*"Frequency.Body.Acceleration.Jerk.std"        
+*"Frequency.BodyGyro.mean"                     
+*"Frequency.BodyGyro.std"      
+
+Note that the measurements below are not caculated for 3 dimensions.
+
+*"Time.Body.Acceleration.Magnitude.mean"         
+*"Time.Body.Acceleration.Magnitude.std"          
+*"Time.Gravity.Acceleration.Magnitude.mean"      
+*"Time.Gravity.Acceleration.Magnitude.std"       
+*"Time.Body.Acceleration.JerkMagnitude.mean"     
+*"Time.Body.Acceleration.JerkMagnitude.std"      
+*"Time.BodyGyroMagnitude.mean"                   
+*"Time.BodyGyroMagnitude.std"                    
+*"Time.BodyGyroJerkMagnitude.mean"               
+*"Time.BodyGyroJerkMagnitude.std"                
+*"Frequency.Body.Acceleration.Magnitude.mean"    
+*"Frequency.Body.Acceleration.Magnitude.std"     
+*"Frequency.Body.Acceleration.JerkMagnitude.mean"
+*"Frequency.Body.Acceleration.JerkMagnitude.std" 
+*"Frequency.BodyGyroMagnitude.mean"              
+*"Frequency.BodyGyroMagnitude.std"               
+*"Frequency.BodyGyroJerkMagnitude.mean"          
+*"Frequency.BodyGyroJerkMagnitude.std"           
+*"activity"                                      
+*"subject"
+
+## Contribution and relevant informaton
+
+Data are downloaded from "UCI Machine Learning Repository", and are relevant information about the variable can be found in the link "http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones"
