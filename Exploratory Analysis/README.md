@@ -1,3 +1,5 @@
+Please note that figure folder is cloned from the rpeng professor at John's Hopkin University. The files in the folder is not created or made by me.
+
 ## Introduction
 
 This assignment uses data from
