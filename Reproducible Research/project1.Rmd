@@ -1,0 +1,83 @@
+Reproducible Research
+========================================
+
+```{r setOptions, echo = FALSE}
+library(knitr)
+opts_chunk$set(echo = FALSE)
+```
+
+###Q0. Loading and Preprocessing the data
+```{r, echo = TRUE, cache= TRUE}
+activity <- read.csv("activity.csv", sep = ",")
+```
+
+###Q1. What is mean total number of steps taken per day?
+```{r totalstep.plot, echo = TRUE, results="asis"}
+#Split the dataframe by the date. Assuming that the days are continuous
+by.day <- split(activity, activity$date)
+total.step.day <- lapply(X = by.day, FUN = function(x) {sum(x$steps)})
+#Makes the dataframe with the date and its total step
+data.frame.step <- data.frame(Date = as.Date(names(total.step.day)), total = NA)
+for(i in 1:nrow(data.frame.step)) {
+  data.frame.step[i, 2] <- total.step.day[[i]]
+}
+#Plots the day and total step
+plot(data.frame.step$Date, data.frame.step$total, type = "h",
+     lwd = 5, col = "black",
+     xlab = "Date", ylab = "Total # of Step",
+     main = "Total number of steps per day from 10-01 to 11-30")
+```
+
+The Code Below Calcuates the mean and median of the total.steps.  
+It appears that mean and median are similar.
+```{r mean.median, echo = TRUE} 
+mean.step <- mean(data.frame.step$total, na.rm = TRUE)
+median.step <- median(data.frame.step$total, na.rm = TRUE)
+```
+
+####The mean total step is `r mean.step`   
+####The median total step is `r median.step`  
+
+<br>
+
+###Q2. What is the average daily activity pattern?
+
+```{r, echo = TRUE}
+library(reshape2)
+#Process the original data so that it is appropriate for this question.
+transform.melt <- melt(activity, id.vars = "interval", measure.vars = "steps", na.rm = TRUE)
+transform.dcast <- dcast(transform.melt, formula = interval ~ variable, mean)
+#Plots the data in time series
+plot(transform.dcast$interval, transform.dcast$steps, type = "l", 
+     xlab = "Interval (5 minutes)", ylab = "Average steps",
+     main = "Average Daily Pattern", lwd = 1.5)
+```
+
+```{r max, echo = TRUE}
+
+maximum.steps <- max(transform.dcast$steps)
+maximum.index <- grep(maximum.steps, transform.dcast$steps)
+maximum.interval <- transform.dcast[maximum.index, 1]
+
+```
+
+####The maximum interval is `r maximum.interval`  
+####Its value is `r maximum.steps`  
+
+<br>
+
+###Q3. Imputing missing values
+
+```{r numofNA, echo = TRUE}
+not.available <- is.na(activity$steps)
+table(not.available)
+```
+
+```{r print, echo=FALSE}
+nas <- sum(is.na(activity$steps))
+print(paste("There are total of", nas, "NAs"))
+```
+
+
+
+
