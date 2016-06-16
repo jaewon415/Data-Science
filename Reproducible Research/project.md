@@ -1,7 +1,7 @@
 Reproducible Research
 ========================================
-
-```{r setOptions, echo = FALSE}
+  
+  ```{r setOptions, echo = FALSE}
 #install.packages("knitr") #Install the package if you do not have one.
 library(knitr)
 opts_chunk$set(echo = FALSE)
@@ -40,10 +40,10 @@ median.step <- median(data.frame.step$total, na.rm = TRUE)
 ####The median total step is `r median.step`  
 
 <br>
-
-###Q2. What is the average daily activity pattern?
-
-```{r, echo = TRUE}
+  
+  ###Q2. What is the average daily activity pattern?
+  
+  ```{r, echo = TRUE}
 #install.packages("reshape2") #install the package if you do not have the package
 library(reshape2)
 #Process the original data so that it is appropriate for this question.
@@ -67,10 +67,10 @@ maximum.interval <- transform.dcast[maximum.index, 1]
 ####Its value is `r maximum.steps`  
 
 <br>
-
-###Q3. Imputing missing values
-
-```{r numofNA, echo = TRUE}
+  
+  ###Q3. Imputing missing values
+  
+  ```{r numofNA, echo = TRUE}
 not.available <- is.na(activity$steps)
 #Number of NA's in the steps column of the dataset. True if NA
 table(not.available)
@@ -118,9 +118,9 @@ difference.median <- paste(((impute.median - median.step) / median.step) * 100, 
 ####From the difference, we barely see difference in mean and median between original data and imputed missing value data. But we observe that imputed missing value graph does not have any gaps in the bin (Because all the values for each day are filled in with some data). 
 
 <br>
-
-###Q4. Are there differences in activity patterns between weekdays and weekends?
-```{r week, echo=TRUE}
+  
+  ###Q4. Are there differences in activity patterns between weekdays and weekends?
+  ```{r week, echo=TRUE}
 
 #Constructing Imputed missing value data.frame
 week.data <- data.frame(steps = NA, date = NA, interval = NA)
