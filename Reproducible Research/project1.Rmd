@@ -2,6 +2,7 @@ Reproducible Research
 ========================================
 
 ```{r setOptions, echo = FALSE}
+#install.packages("knitr") #Install the package if you do not have one.
 library(knitr)
 opts_chunk$set(echo = FALSE)
 ```
@@ -22,7 +23,7 @@ for(i in 1:nrow(data.frame.step)) {
   data.frame.step[i, 2] <- total.step.day[[i]]
 }
 #Plots the day and total step
-plot(data.frame.step$Date, data.frame.step$total, type = "h",
+plot(data.frame.step$Date, data.frame.step$total, type ="h", 
      lwd = 5, col = "black",
      xlab = "Date", ylab = "Total # of Step",
      main = "Total number of steps per day from 10-01 to 11-30")
@@ -43,6 +44,7 @@ median.step <- median(data.frame.step$total, na.rm = TRUE)
 ###Q2. What is the average daily activity pattern?
 
 ```{r, echo = TRUE}
+#install.packages("reshape2") #install the package if you do not have the package
 library(reshape2)
 #Process the original data so that it is appropriate for this question.
 transform.melt <- melt(activity, id.vars = "interval", measure.vars = "steps", na.rm = TRUE)
@@ -70,6 +72,7 @@ maximum.interval <- transform.dcast[maximum.index, 1]
 
 ```{r numofNA, echo = TRUE}
 not.available <- is.na(activity$steps)
+#Number of NA's in the steps column of the dataset. True if NA
 table(not.available)
 ```
 
@@ -78,6 +81,45 @@ nas <- sum(is.na(activity$steps))
 print(paste("There are total of", nas, "NAs"))
 ```
 
+#### I decided to impute the missing value using 5 minute interval.
+
+```{r imputeNa, echo=TRUE}
+by.day.impute <- by.day
+for(i in 1:length(total.step.day)) {
+  if (is.na(total.step.day[[i]])) {
+    by.day.impute[[names(total.step.day[i])]]$steps <- transform.dcast[2]
+  }
+}
+total.step.day.impute <- lapply(X = by.day.impute, FUN = function(x) {sum(x$steps)})
+#Makes the dataframe with the date and its total step
+data.frame.step.impute <- data.frame(Date = as.Date(names(total.step.day.impute)), total = NA)
+for(i in 1:nrow(data.frame.step)) {
+  data.frame.step.impute[i, 2] <- total.step.day.impute[[i]]
+}
+
+#Plots the day and total step
+plot(data.frame.step.impute$Date, data.frame.step.impute$total, type = "h",
+     lwd = 5, col = "black",
+     xlab = "Date", ylab = "Total # of Step",
+     main = "Total # of steps per day from 10-01 to 11-30 (Imputed NA Values)")
+```
+
+```{r imputeMean, echo=TRUE} 
+impute.mean <- mean(data.frame.step.impute$total)
+impute.median <- median(data.frame.step.impute$total)
+
+difference.mean <- paste(((impute.mean - mean.step) / mean.step) * 100, "%")
+difference.median <- paste(((impute.median - median.step) / median.step) * 100, "%") 
+```
+####The mean of imputed missing value is `r impute.mean`  
+####The median of imputed missing value is `r impute.median`  
+####Difference in mean value from original data and imputed data is `r difference.mean`  
+####Difference in median value from original data and imputed data is `r difference.median`
+####From the difference, we barely see difference in mean and median between original data and imputed missing value data. But we observe that imputed missing value graph does not have any gaps in the bin (Because all the values for each day are filled in with some data). 
+
+<br>
+
+###Q4. Are there differences in activity patterns between weekdays and weekends?
 
 
 
