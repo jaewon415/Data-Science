@@ -1,0 +1,179 @@
+---
+output: pdf_document
+---
+Title: Storm Data Analysis   
+Author: JAY  
+Data Last Accessed: June 18th 2016    
+Project Finished: June 19th 2016  
+  
+===========================================================================   
+
+##Synopsis  
+In this report, I used the [Storm database](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2) provided by the NOAA (National Oceanic and Atmospheric Administration) that contains 902297 observation and 37 variables. The database is collected from 1950 to 2011, but it looks like many of the variable had missing data for earlier period. The main purpose of this analysis was to find which of the severe weathers are most harmful with respect to USA Population and which of the severe weathers had greatest impact on the economnically in USA. From the analysis overall, I observed that tornado had greatest damage to the population and the flood had greatest damge to the economics in USA.  
+
+##Data Processing    
+The data was first downloaded from the website, and started by reading a raw data  
+```{r cache.csv, message=FALSE, warning=FALSE, echo = TRUE}
+#setwd() #Set your directory
+csv.url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+dest.file <- "./storm.csv.bz2"
+Sys.setlocale("LC_ALL", "English")
+if (!file.exists(dest.file)) {
+  download.file(csv.url, destfile = dest.file)
+  storm <- read.csv(bzfile("storm.csv.bz2"), sep = ",")
+  unlink("storm.csv.bz2")
+}
+if(!any("storm" == ls())) {
+  storm <- read.csv(bzfile("storm.csv.bz2"), sep = ",")
+  unlink("storm.csv.bz2")
+}
+
+#install.packages(c("dplyr", "ggplot2")) #uncomment it for installation
+library("dplyr")
+library("ggplot2")
+```
+
+####Data Selection  
+Since I was to find damage to economics and population, I decided to choose only relevant variables that serve well to this project's purpose.  
+Variable Brief Explanation:  
+1. EVTYPE: TYPE OF SEVERE WEATHER   
+2. FATALITIES: # of fatalities      
+3. INJURIES: # of injuries  
+4. PROPDMG: property damage cost    
+5. CROPDMG: crop damage cost  
+```{r dataselection, echo=TRUE}
+#Shift from original data to data required for this project.
+analysis <- select(storm, EVTYPE, FATALITIES, INJURIES, PROPDMG, 
+                   PROPDMGEXP, CROPDMG, CROPDMGEXP)
+```
+
+<br>
+
+###POPULATION HEALTH    
+
+####Data getting ready before graph  
+```{r healthdata, echo=TRUE}
+#HEALTH
+fatality.sum <- aggregate(FATALITIES ~ EVTYPE, analysis, sum)
+injury.sum <- aggregate(INJURIES ~ EVTYPE, analysis, sum)
+injury.fatality.sum <- aggregate(INJURIES + FATALITIES ~ EVTYPE, analysis, sum)
+
+fatality.sum <- fatality.sum[order(fatality.sum$FATALITIES, decreasing = TRUE), ]
+injury.sum <- injury.sum[order(injury.sum$INJURIES, decreasing = TRUE), ]
+injury.fatality.sum <- injury.fatality.sum[order(injury.fatality.sum$`INJURIES + FATALITIES`, decreasing = TRUE), ]
+
+fatal.graph <- head(fatality.sum, 10)
+injur.graph <- head(injury.sum, 10)
+if.graph <- head(injury.fatality.sum, 10)
+```
+
+####Fatality Graph
+
+From the graph below, the tornado was most harmful to the U.S. Population with 5633 Fatalities.
+```{r fatalitygraph, echo=TRUE, fig.width= 12, fig.height=7}
+fatal.graph$EVTYPE <- factor(fatal.graph$EVTYPE, levels = fatal.graph$EVTYPE[order(fatal.graph$FATALITIES, decreasing = TRUE)])
+fatal <- ggplot(fatal.graph, mapping = aes(EVTYPE, FATALITIES))
+fatal + geom_bar(stat = "identity") + labs(x = "TYPE OF EVENT", y = "Number of Fatalities", title = "Top 10 USA SEVERE WEATHER's HUMAN FATALITIES")
+fatal.rankone <- fatal.graph[1,]
+(fatal.rankone)
+```
+
+####Injury Graph  
+From the graph below, the tornado was also most harmful to the U.S. Population with 91346 Fatalities.
+```{r injurygraph, echo=TRUE, fig.width= 12, fig.height=7}
+injur.graph$EVTYPE <- factor(injur.graph$EVTYPE, levels = injur.graph$EVTYPE[order(injur.graph$INJURIES, decreasing = TRUE)])
+injur <- ggplot(injur.graph, mapping = aes(EVTYPE, INJURIES))
+injur + geom_bar(stat = "identity") + labs(x = "TYPE OF EVENT", y = "Number of Injuries", title = "Top 10 USA SEVERE WEATHER's HUMAN INJURIES")
+injury.rankone <- injur.graph[1,]
+(injury.rankone)
+```
+
+####Injury and Fatality Total Graph
+As we suspected, the tornado was most harmful to the U.S. Population's health followed by the excessive heat.
+```{r healthtotal, echo=TRUE, fig.width= 12, fig.height=7}
+if.graph$EVTYPE <- factor(if.graph$EVTYPE, levels = if.graph$EVTYPE[order(if.graph$`INJURIES + FATALITIES`, decreasing = TRUE)])
+if.gg <- ggplot(if.graph, mapping = aes(EVTYPE, `INJURIES + FATALITIES`))
+if.gg + geom_bar(stat = "identity") + labs(x = "TYPE OF EVENT", y = "# FATALITY and INJURY", title = "Top 10 USA SEVERE WEATHER IMPACT ON HUMAN")
+if.rankone <- if.graph[1,]
+(if.rankone)
+```
+
+<br>
+
+###ECONOMICAL IMPACT  
+####Geting ready with the data  
+Since the data contained character value "k", "m", "b", and "h", which is abbrebriated form of thousand, million, billion, and hundred respectively, I decided to change the character value into the exponent integer.
+```{r economydata, echo=TRUE}
+#ECONOMY
+#Setting up the column solely for property damage cost
+analysis$PROPDMGEXP <- tolower(analysis$PROPDMGEXP)
+analysis$PROPDMGEXP[analysis$PROPDMGEXP %in% c("", "-", "?", "+")] <- 0
+analysis$PROPDMGEXP[analysis$PROPDMGEXP %in% "k"] <- 3
+analysis$PROPDMGEXP[analysis$PROPDMGEXP %in% "m"] <- 6
+analysis$PROPDMGEXP[analysis$PROPDMGEXP %in% "b"] <- 9
+analysis$PROPDMGEXP[analysis$PROPDMGEXP %in% "h"] <- 2
+analysis <- transform(analysis, prop.cost = as.numeric(analysis$PROPDMG) * 
+                        (10^(as.numeric(analysis$PROPDMGEXP))))
+
+#Setting up the column solely for crop damage cost
+analysis$CROPDMGEXP <- tolower(analysis$CROPDMGEXP)
+analysis$CROPDMGEXP[analysis$CROPDMGEXP %in% c("", "?")] <- 0
+analysis$CROPDMGEXP[analysis$CROPDMGEXP %in% "k"] <- 3
+analysis$CROPDMGEXP[analysis$CROPDMGEXP %in% "m"] <- 6
+analysis$CROPDMGEXP[analysis$CROPDMGEXP %in% "b"] <- 9
+analysis <- transform(analysis, crop.cost = as.numeric(analysis$CROPDMG) * 
+                        (10^(as.numeric(analysis$CROPDMGEXP))))
+
+#Total Cost: Property Damage Cost Plus Crop Damage Cost
+analysis <- transform(analysis, total.cost = crop.cost + prop.cost)
+
+#ECONOMIC IMPACT
+economic.crop <- aggregate(crop.cost ~ EVTYPE, analysis, sum)
+economic.prop <- aggregate(prop.cost ~ EVTYPE, analysis, sum) 
+economic.total <- aggregate(total.cost ~ EVTYPE, analysis, sum) 
+
+economic.crop <- economic.crop[order(economic.crop$crop.cost, decreasing = TRUE),]
+economic.prop <- economic.prop[order(economic.prop$prop.cost, decreasing = TRUE),]
+economic.total <- economic.total[order(economic.total$total.cost, decreasing = TRUE),]
+
+economic.crop <- head(economic.crop, 10)
+economic.prop <- head(economic.prop, 10)
+economic.total <- head(economic.total, 10)
+
+economic.crop$EVTYPE <- factor(economic.crop$EVTYPE, levels = economic.crop$EVTYPE[order(economic.crop$crop.cost, decreasing = TRUE)])
+economic.prop$EVTYPE <- factor(economic.prop$EVTYPE, levels = economic.prop$EVTYPE[order(economic.prop$prop.cost, decreasing = TRUE)])
+economic.total$EVTYPE <- factor(economic.total$EVTYPE, levels = economic.total$EVTYPE[order(economic.total$total.cost, decreasing = TRUE)])
+```
+
+####Severe weather damage on crop  
+From the graph below, we see that drought cause most damage economically speaking with 13972566000 dollars worth of damage.
+```{r crop, echo=TRUE, fig.width= 12, fig.height=7}
+crop <- ggplot(economic.crop, mapping = aes(EVTYPE, crop.cost))
+crop + geom_bar(stat = "identity") + labs(x = "TYPE OF EVENT", y = "Cost of Crop", title = "Top 10 USA SEVERE WEATHER's IMPACT ON CROP")
+crop.rankone <- economic.crop[1,]
+(crop.rankone)
+```
+
+####Severe weather damage on property  
+From the graph below, we see that flood cause most damage economically speaking with 144657709807 dollars worth of damage.
+```{r prop, echo=TRUE, fig.width= 12, fig.height=7}
+prop <- ggplot(economic.prop, mapping = aes(EVTYPE, prop.cost))
+prop + geom_bar(stat = "identity") + labs(x = "TYPE OF EVENT", y = "Cost of Property", title = "Top 10 USA SEVERE WEATHER's IMPACT ON Property")
+prop.rankone <- economic.prop[1,]
+(prop.rankone)
+```
+
+####Severe weather damage overall impact on properties and crops  
+From the graph below, we see that the flood has done most economical damage to properties and crops in U.S.A with 150319678257 dollar worth of damage. 
+```{r total, echo=TRUE, fig.width= 12, fig.height=7}
+total <- ggplot(economic.total, mapping = aes(EVTYPE, total.cost))
+total + geom_bar(stat = "identity") + labs(x = "TYPE OF EVENT", y = "Cost of ECONOMICAL DAMAGE", title = "Top 10 USA SEVERE WEATHER's IMPACT ON BOTH PROP AND CROP")
+economic.damage.rankone <- economic.total[1,]
+(economic.damage.rankone)
+```
+
+<br>
+
+##Result   
+
+All in all, I observed that tornado was most harmful to the population's health and flood was most harmful to the U.S. economics. Although government should start preparing for the severe weather that may have impact on the future, there should be further investigation on this analysis by stratify the data by the region because tornado and flood may not be common in some place. I believe that the preparation should be prioritize in the area with most tornado and flood.
