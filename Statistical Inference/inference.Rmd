@@ -1,0 +1,61 @@
+---
+title: "Statistical Inference"
+author: "Jaewon Chang"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#### Purpose: This report is based on the investigation of forty different exponential distributions in R software to compare it with the CLT (Central Limited Theorem). I used a specific parameter for this project, where lambda equals 0.2.
+
+
+```{r part.one}
+#For Using a randomly generated values
+set.seed(1)
+
+#Given lambda value for exponential distribution
+lambda <- 0.2
+#Given number of exponential values
+n.exp <- 40
+
+#Number of simulation for CLT
+n.simulation <- 1000
+
+#Random exponential simulation for one thousand times.
+random.exp <- replicate(n = n.simulation, expr = rexp(n = n.exp, rate = lambda))
+mean.matrix <- apply(random.exp, 2, mean)
+
+#Statistical values (empirical values)
+mean.value <- mean(mean.matrix)
+sd.value <- sd(mean.matrix)
+var.value <- sd.value^2
+
+#Theoretical Values
+theo.mean <- 1 / lambda
+theo.sd <- theo.mean / sqrt(n.exp)
+theo.var <- theo.sd^2
+
+mean <- c(theo.mean, mean.value)
+sd <- c(theo.sd, sd.value)
+var <- c(theo.var, var.value)
+
+#Matrix that shows the statistical values of theoretical value and empirical vlaue of randomly generated exponential distribution.
+
+#Mean and variances of theoretical and empirical values are quite close to each other.
+statistics <- rbind(mean, sd, var)
+colnames(statistics) <- c("Theoretical", "Empirical")
+statistics
+
+#Graph
+hist(mean.matrix, breaks = 40, main = "Compare to Normal Distribution", col = "salmon", xlab = "Mean")
+
+dnorm.seq <- seq(min(mean.matrix), max(mean.matrix), length = 100)
+dnorm.y <- dnorm(x = dnorm.seq, mean = theo.mean, sd = theo.sd)
+lines(dnorm.seq, dnorm.y * 100)
+```
+
+Based on the comparison table (Theoretical and Empirical) above and comparison graph above, they appear to be very close to each other; the frequency bars falls under the normally distributed lines and theo/empirical valuese are quite similar.
+

@@ -1,0 +1,110 @@
+---
+title: "Statistical Inference 2"
+author: "Jaewon Chang"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r part.two}
+
+#Load the data
+library(datasets)
+data("ToothGrowth")
+
+```
+
+
+#### Description: The response is the length of the cells that are reponsible for tooth growth in sixty guinea pigs. Each animal is given one of three dose level of Vitamin C: "0.5", "1", "2" milligram per day. This vitamnin C is given delivered through either orange juice or ascorbic acid. More detail information about this dataset can be found using a help function.
+
+```{r}
+#Five-Statistical summary of the datasets
+summary(ToothGrowth)
+
+#Change the dose variable type to factor
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+```
+
+```{r exploratory}
+#The graph belows shows the boxplot based on the tooth length and the vitamin C 
+library(ggplot2)
+g <- ggplot(ToothGrowth, mapping = aes(x = dose, y = len)) + geom_boxplot(aes(fill = dose)) + ggtitle("Length of Tooth regardless of differentiation in the methods")
+
+#The graph below illustrates the impact on the vitamin delivery methods into guinea pig's growth tooth.  
+library(ggplot2)
+g <- ggplot(ToothGrowth, mapping = aes(x = dose, y = len)) + ggtitle("Tooth Length in two delivery methods") 
+g + facet_grid(. ~ supp) + geom_boxplot(aes(fill = dose))
+```
+
+```{r hypothesis}
+#First check if the variance are equal in order to confirm var.equal is FALSE or NOT
+vitamin <- subset(ToothGrowth, subset = (supp == "VC"))
+ascorbic <- subset(ToothGrowth, subset = (supp == "OJ"))
+
+#variance of vitamin: 68.3 and Orange: 43.63
+c(var(vitamin$len), var(ascorbic$len))
+
+
+#T.test
+t.test(data = ToothGrowth, len ~ supp, paired = FALSE, var.equal = FALSE)
+
+```
+
+The probability is about 0.0606, which is bigger than the 0.05. This implies that supplement does not have impact on the tooth length of guinea pigs. (Note that confidence interval includes zero and also note that this hypothesis testing should be done on the larger set of the data)
+
+
+### Performance on the dosage.
+```{r hypothesis.one}
+new_TG <- subset(x = ToothGrowth, subset = ToothGrowth$dose %in% c(0.5, 1))
+
+#First check if the variance are equal in order to confirm var.equal is FALSE or NOT
+vitamin <- subset(new_TG, subset = (supp == "VC"))
+ascorbic <- subset(new_TG, subset = (supp == "OJ"))
+
+#variance of vitamin: 26.90303 and Orange: 40.26661
+c(var(vitamin$len), var(ascorbic$len))
+
+#T.test
+t.test(data = new_TG, len ~ dose, paired = FALSE, var.equal = FALSE)
+```
+
+```{r hypothesis.two}
+new_TG <- subset(x = ToothGrowth, subset = ToothGrowth$dose %in% c(0.5, 2))
+
+#First check if the variance are equal in order to confirm var.equal is FALSE or NOT
+vitamin <- subset(new_TG, subset = (supp == "VC"))
+ascorbic <- subset(new_TG, subset = (supp == "OJ"))
+
+#variance of vitamin: 37.00471 and Orange: 13.55537
+c(var(vitamin$len), var(ascorbic$len))
+
+#T.test
+t.test(data = new_TG, len ~ dose, paired = FALSE, var.equal = FALSE)
+```
+
+```{r hypothesis.three}
+new_TG <- subset(x = ToothGrowth, subset = ToothGrowth$dose %in% c(1, 2))
+
+#First check if the variance are equal in order to confirm var.equal is FALSE or NOT
+vitamin <- subset(new_TG, subset = (supp == "VC"))
+ascorbic <- subset(new_TG, subset = (supp == "OJ"))
+
+#variance of vitamin: 37.00471 and Orange: 13.55537
+c(var(vitamin$len), var(ascorbic$len))
+
+#T.test
+t.test(data = new_TG, len ~ dose, paired = FALSE, var.equal = FALSE)
+```
+
+It appears that the probability is very small and the confidence interval does not have two different sign. This indicates that tooth average increases as dose of vitamin increases at 95 percent confidence.
+
+### Conclusion/Assumptions
+1. Tooth length increases as dosage increases
+2. Supplement type does not have impact on the tooth length
+3. Experiment was done in same environment
+
+Note that there should be a further investigation on this matter because there is lack of data. The data length of 60 is enough to conclude scientific foundings.
+
+
